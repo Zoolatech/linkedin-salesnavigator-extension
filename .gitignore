@@ -21,6 +21,7 @@ tsconfig.tsbuildinfo
 .DS_Store
 .idea
 **/.turbo
+**/.history
 
 # compiled
 **/tailwind-output.css

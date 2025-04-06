@@ -1,30 +1,16 @@
 {
   "extensionDescription": {
     "description": "Extension description",
-    "message": "Chrome extension boilerplate developed with Vite, React and Typescript"
+    "message": "Chrome Extension to help with routine tasks in Sales Navigator"
   },
   "extensionName": {
     "description": "Extension name",
-    "message": "Chrome extension boilerplate"
+    "message": "Zoolatech Sales Navigator Extension"
   },
   "toggleTheme": {
     "message": "Toggle theme"
   },
   "loading": {
     "message": "Loading..."
-  },
-  "greeting": {
-    "description": "Greeting message",
-    "message": "Hello, My name is $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Doe"
-      }
-    }
-  },
-  "hello": {
-    "description": "Placeholder example",
-    "message": "Hello $1"
   }
 }
