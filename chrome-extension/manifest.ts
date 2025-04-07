@@ -1,3 +1,4 @@
+import { EXTENSION_KEY } from '@extension/env';
 import { readFileSync } from 'node:fs';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
@@ -21,6 +22,7 @@ const manifest = {
   manifest_version: 3,
   default_locale: 'en',
   name: '__MSG_extensionName__',
+  key: EXTENSION_KEY,
   browser_specific_settings: {
     gecko: {
       id: 'example@example.com',
@@ -64,6 +66,9 @@ const manifest = {
   ],
   side_panel: {
     default_path: 'side-panel/index.html',
+  },
+  externally_connectable: {
+    matches: ['<all_urls>'],
   },
 } satisfies chrome.runtime.ManifestV3;
 

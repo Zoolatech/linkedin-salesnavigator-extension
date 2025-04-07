@@ -18,6 +18,9 @@ const Popup = () => {
           <img src={chrome.runtime.getURL(logo)} className="App-logo" alt="logo" />
         </button>
         <p>
+          ID: <code>{chrome.runtime.id}</code>
+        </p>
+        <p>
           Edit <code>pages/popup/src/Popup.tsx</code>
         </p>
         <ToggleButton>{t('toggleTheme')}</ToggleButton>

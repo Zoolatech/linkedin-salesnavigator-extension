@@ -1,7 +1,8 @@
 import type { dynamicEnvValues } from './index.js';
 
 interface ICebEnv {
-  readonly CEB_EXAMPLE: string;
+  readonly CEB_EXTENSION_KEY: string;
+  readonly CEB_EXTENSION_ID: string;
   readonly CEB_DEV_LOCALE: string;
 }
 

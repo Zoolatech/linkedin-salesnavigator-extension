@@ -1,18 +1,16 @@
-interface XMLHttpRequest {
-  _method: string | null;
-  _url: string | URL;
-  _requestHeaders: Record<string, string>;
-  open(method: string, url: string | URL, async: boolean, username?: string | null, password?: string | null): void;
-  setRequestHeader(name: string, value: string): void;
-  send(body?: Document | XMLHttpRequestBodyInit | null): void;
-  getAllResponseHeaders(): string;
-  addEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
-  responseType: XMLHttpRequestResponseType;
-  responseText: string;
+import { EXTENSION_ID } from '@extension/env';
+import { type ExternalMessage } from '@extension/shared';
+
+interface HookedXMLHttpRequest extends XMLHttpRequest {
+  _method?: string;
+  _url?: string | URL;
+  _requestHeaders?: Record<string, string>;
 }
 
+const MATCHED_METHODS = /^get|post|put|delete|patch$/i;
+
 export function hookXHR() {
-  const XHR: XMLHttpRequest = XMLHttpRequest.prototype as unknown as XMLHttpRequest;
+  const XHR: HookedXMLHttpRequest = XMLHttpRequest.prototype as HookedXMLHttpRequest;
 
   const open = XHR.open;
   const send = XHR.send;
@@ -21,7 +19,7 @@ export function hookXHR() {
   XHR.open = function (
     method: string,
     url: string | URL,
-    async: boolean,
+    async: boolean = true,
     username?: string | null,
     password?: string | null,
   ): void {
@@ -33,35 +31,69 @@ export function hookXHR() {
   };
 
   XHR.setRequestHeader = function (name: string, value: string): void {
+    if (this._requestHeaders === undefined) {
+      this._requestHeaders = {};
+    }
     this._requestHeaders[name] = value;
     return setRequestHeader.apply(this, [name, value]);
   };
 
   XHR.send = function (body?: Document | XMLHttpRequestBodyInit | null): void {
-    console.log('Request URL:', this._url);
-    console.log('Request Method:', this._method);
-    console.log('Request Headers:', this._requestHeaders);
-    console.log('Request Body:', body);
-
-    this.addEventListener('load', () => {
-      // const endTime = new Date().toISOString();
-      console.log('Got response:', this._url);
-      console.log('Response Type:', this.responseType);
-      console.log('Response Headers:', this.getAllResponseHeaders());
-
-      // if (this._url) {
-
-      if (this.responseType != 'blob' && this.responseText) {
-        // responseText is string or null
-        try {
-          console.log('Response Text:', this.responseText);
-        } catch (err) {
-          console.log('Error in responseType try catch');
-          console.log(err);
+    if (this._method === undefined || MATCHED_METHODS.test(this._method)) {
+      this.addEventListener('load', async () => {
+        if (this.readyState !== this.DONE || this.status !== 200) {
+          return;
         }
-      }
-      // }
-    });
+
+        if (!this.getResponseHeader('Content-Type')?.includes('json')) {
+          console.log('Response is not JSON, skipping', this.getResponseHeader('Content-Type'));
+          return;
+        }
+
+        let jsonData: string | undefined = undefined;
+        switch (this.responseType) {
+          case 'text':
+          case '':
+            jsonData = this.responseText;
+            break;
+          case 'json':
+            jsonData = JSON.stringify(this.response);
+            break;
+          case 'blob':
+            jsonData = await (this.response as Blob).text();
+            break;
+          case 'arraybuffer':
+            jsonData = new TextDecoder('utf-8').decode(this.response as ArrayBuffer);
+            break;
+          default:
+            console.log('Response type is not JSON, skipping', this.responseType);
+            return;
+        }
+
+        try {
+          JSON.parse(jsonData);
+        } catch (err) {
+          console.log('Response is not parsable JSON, skipping', err);
+          return;
+        }
+
+        try {
+          await chrome.runtime.sendMessage(EXTENSION_ID, {
+            type: 'XHR',
+            data: {
+              url: this._url,
+              method: this._method,
+              requestHeaders: this._requestHeaders,
+              requestBody: body,
+              responseHeaders: this.getAllResponseHeaders(),
+              responseJSON: jsonData,
+            },
+          } satisfies ExternalMessage);
+        } catch (err) {
+          console.log('Error in sendMessage', err);
+        }
+      });
+    }
 
     return send.apply(this, [body]);
   };
