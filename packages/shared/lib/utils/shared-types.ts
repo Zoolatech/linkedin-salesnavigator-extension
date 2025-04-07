@@ -8,7 +8,7 @@ export const recordedXHRSchema = z.object({
   requestHeaders: z.record(z.string()).optional(),
   requestBody: z.any().optional(),
   responseHeaders: z.string().nullable().optional(),
-  responseJSON: z.string(),
+  responseObject: z.any(),
 });
 
 export const externalMessageSchema = z.object({

@@ -50,6 +50,7 @@ export function hookXHR() {
           return;
         }
 
+        let responseObject = undefined;
         let jsonData: string | undefined = undefined;
         switch (this.responseType) {
           case 'text':
@@ -57,7 +58,7 @@ export function hookXHR() {
             jsonData = this.responseText;
             break;
           case 'json':
-            jsonData = JSON.stringify(this.response);
+            responseObject = this.response;
             break;
           case 'blob':
             jsonData = await (this.response as Blob).text();
@@ -66,15 +67,17 @@ export function hookXHR() {
             jsonData = new TextDecoder('utf-8').decode(this.response as ArrayBuffer);
             break;
           default:
-            console.log('Response type is not JSON, skipping', this.responseType);
+            console.log('Response type is unknown, skipping', this._url, this.responseType);
             return;
         }
 
-        try {
-          JSON.parse(jsonData);
-        } catch (err) {
-          console.log('Response is not parsable JSON, skipping', err);
-          return;
+        if (responseObject === undefined) {
+          try {
+            responseObject = JSON.parse(jsonData || '');
+          } catch (err) {
+            console.log('Response is not parsable JSON, skipping', this._url, err);
+            return;
+          }
         }
 
         try {
@@ -86,7 +89,7 @@ export function hookXHR() {
               requestHeaders: this._requestHeaders,
               requestBody: body,
               responseHeaders: this.getAllResponseHeaders(),
-              responseJSON: jsonData,
+              responseObject,
             },
           } satisfies ExternalMessage);
         } catch (err) {
