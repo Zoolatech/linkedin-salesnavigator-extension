@@ -31,7 +31,7 @@ const manifest = {
   },
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  host_permissions: ['<all_urls>'],
+  host_permissions: ['*://*.linkedin.com/*'],
   permissions: ['storage', 'scripting', 'tabs', 'notifications', 'sidePanel'],
   options_page: 'options/index.html',
   background: {
@@ -48,27 +48,27 @@ const manifest = {
   },
   content_scripts: [
     {
-      matches: ['http://*/*', 'https://*/*', '<all_urls>'],
+      matches: ['*://*.linkedin.com/*'],
       js: ['content/index.iife.js'],
       run_at: 'document_start',
       world: 'MAIN',
     },
     {
-      matches: ['http://*/*', 'https://*/*', '<all_urls>'],
+      matches: ['*://*.linkedin.com/*'],
       css: ['content.css'],
     },
   ],
   web_accessible_resources: [
     {
       resources: ['*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png'],
-      matches: ['*://*/*'],
+      matches: ['*://*.linkedin.com/*'],
     },
   ],
   side_panel: {
     default_path: 'side-panel/index.html',
   },
   externally_connectable: {
-    matches: ['<all_urls>'],
+    matches: ['*://*.linkedin.com/*'],
   },
 } satisfies chrome.runtime.ManifestV3;
 
