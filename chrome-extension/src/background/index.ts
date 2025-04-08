@@ -1,6 +1,7 @@
 import 'webextension-polyfill';
 import { exampleThemeStorage } from '@extension/storage';
-import { externalMessageSchema } from '@extension/shared';
+import { externalMessageSchema, parserModelLinkedin } from '@extension/shared';
+import { processXHR } from './parser';
 
 exampleThemeStorage.get().then(theme => {
   console.log('theme', theme);
@@ -11,7 +12,7 @@ chrome.runtime.onMessageExternal.addListener((message, sender) => {
     const parsed = externalMessageSchema.parse(message);
     if (parsed.type === 'XHR') {
       parsed.data.url = new URL(parsed.data.url || '', sender.url).toString();
-      console.log('Got XHR data:', parsed.data);
+      processXHR(parserModelLinkedin, parsed.data);
     }
   } catch (error) {
     console.error('Error processing external message:', error);

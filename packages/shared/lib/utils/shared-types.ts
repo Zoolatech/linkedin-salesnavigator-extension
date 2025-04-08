@@ -18,3 +18,29 @@ export const externalMessageSchema = z.object({
 
 export type RecordedXHR = z.infer<typeof recordedXHRSchema>;
 export type ExternalMessage = z.infer<typeof externalMessageSchema>;
+
+export type FieldTraits = {
+  entityRef?: string;
+  displayName?: string;
+  type?: 'string' | 'url' | 'image';
+  fetch?: boolean;
+};
+
+export type EntityTraits = {
+  displayName?: string;
+  fields?: Record<string, string | FieldTraits>;
+  fieldID?: string;
+};
+
+export type ValueRecord = Record<string, string | { value: string; altValue: string }>;
+export type ValuesExtractor = (data: RecordedXHR) => ValueRecord[];
+export type EntityParser = {
+  entity: string;
+  urlMatcher: RegExp;
+  extractor?: ValuesExtractor;
+};
+
+export type ParserConfig = {
+  entities: Record<string, EntityTraits>;
+  parsers: EntityParser[];
+};
