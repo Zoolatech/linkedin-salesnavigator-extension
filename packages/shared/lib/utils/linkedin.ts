@@ -1,45 +1,111 @@
-import type { RecordedXHR, ParserConfig } from './shared-types.js';
+import type { RecordedXHR, ParserConfig, EntityTraits, ValueRecord } from './shared-types.js';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function leadIDPart(entityUrn: any): string | undefined {
+  return /.*\((.*)\).*/.exec(entityUrn)?.[1];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function leadDetailsFetchURL(el: any): string | undefined {
+  const idPart = leadIDPart(el.entityUrn);
+  const detailsQueryParts = idPart?.split(',');
+  return detailsQueryParts && detailsQueryParts.length === 3
+    ? `https://www.linkedin.com/sales-api/salesApiProfiles/(profileId:${detailsQueryParts[0]},authType:${detailsQueryParts[1]},authToken:${detailsQueryParts[2]})?decoration=%28%0A%20%20entityUrn%2C%0A%20%20objectUrn%2C%0A%20%20firstName%2C%0A%20%20lastName%2C%0A%20%20fullName%2C%0A%20%20degree%2C%0A%20%20location%2C%0A%20%20summary%2C%0A%20%20defaultPosition%2C%0A%20%20contactInfo%2C%0A%20%20flagshipProfileUrl%2C%0A%20%20numOfConnections%2C%0A%20%20numOfSharedConnections%2C%0A%20%20profilePictureDisplayImage%0A%29`
+    : undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function leadDetailsBrowseURL(el: any, data: RecordedXHR): string | undefined {
+  const idPart = leadIDPart(el.entityUrn);
+  const lipiPartRaw = data?.requestHeaders?.['X-li-page-instance'] || data?.requestHeaders?.['x-li-page-instance'];
+  return idPart !== undefined
+    ? `https://www.linkedin.com/sales/lead/${idPart}${lipiPartRaw ? '?lipi=' + encodeURIComponent(lipiPartRaw) : ''}`
+    : undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function imageUrl(el: any): string | undefined {
+  return el.profilePictureDisplayImage?.rootUrl !== undefined &&
+    el.profilePictureDisplayImage?.artifacts?.[0]?.fileIdentifyingUrlPathSegment !== undefined
+    ? `${el.profilePictureDisplayImage.rootUrl}${el.profilePictureDisplayImage.artifacts[0].fileIdentifyingUrlPathSegment}`
+    : undefined;
+}
 
 export const parserModelLinkedin: ParserConfig = {
   entities: {
-    Person: {
-      fieldID: 'entityUrn',
+    Lead: {
+      fieldID: 'leadID',
       fields: {
         fullName: 'Full Name',
         firstName: 'First Name',
         lastName: 'Last Name',
         geoRegion: 'Location',
-        account: 'Account',
         company: 'Company',
         title: 'Title',
-        degree: 'Relationships',
-        associatedAccountRef: { entityRef: 'Account' },
-        associatedAccountURL: { displayName: 'Account URL', type: 'url', fetch: true },
-        entityUrn: 'Entity URN',
+        summary: 'Summary',
+        linkedinURL: { displayName: 'LinkedIn URL', type: 'url', browse: true },
+        contactInfo: 'Contact Info',
+        profilePictureDisplayImage: { type: 'image' },
+        numOfConnections: 'Connections',
+        numOfSharedConnections: 'Shared Connections',
+        distance: 'Relationships',
+        account: 'Account',
+        accountRef: { entityRef: 'Account' },
+        leadDetailsFetch: { type: 'url', fetch: true },
+        leadDetailsBrowse: { type: 'url', browse: true },
       },
-    },
+    } satisfies EntityTraits,
   },
   parsers: [
     {
-      entity: 'Person',
+      entity: 'Lead',
       urlMatcher: /linkedin.com\/sales-api\/salesApiPeopleSearch/i,
-      extractor: (data: RecordedXHR) => {
+      extractor: (data: RecordedXHR): ValueRecord[] => {
         const responseObject = data.responseObject;
         const elements = responseObject.elements || [];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return elements.map((el: any) => ({
-          fullName: el.fullName || '',
-          firstName: el.firstName || '',
-          lastName: el.lastName || '',
-          geoRegion: el.geoRegion || '',
-          account: el.leadAssociatedAccountResolutionResult?.name || '',
-          company: el.currentPositions?.[0]?.companyName || '',
-          title: el.currentPositions?.[0]?.title || '',
-          degree: el.degree || '',
-          associatedAccountRef: el.leadAssociatedAccountResolutionResult?.entityUrn || '',
-          associatedAccountURL: el.leadAssociatedAccountResolutionResult?.entityUrn || '',
-          entityUrn: el.entityUrn || '',
+          fullName: el.fullName,
+          firstName: el.firstName,
+          lastName: el.lastName,
+          geoRegion: el.geoRegion,
+          company: el.currentPositions?.[0]?.companyName,
+          title: el.currentPositions?.[0]?.title,
+          profilePictureDisplayImage: imageUrl(el) || '',
+          distance: el.degree,
+          account: el.leadAssociatedAccountResolutionResult?.name || el.currentPositions?.[0]?.companyName,
+          accountRef: el.leadAssociatedAccountResolutionResult?.entityUrn || el.currentPositions?.[0]?.companyUrn,
+          leadDetailsFetch: leadDetailsFetchURL(el),
+          leadDetailsBrowse: leadDetailsBrowseURL(el, data),
+          leadID: el.entityUrn,
         }));
+      },
+    },
+    {
+      entity: 'Lead',
+      urlMatcher: /linkedin.com\/sales-api\/salesApiProfiles\//i,
+      extractor: (data: RecordedXHR): ValueRecord[] => {
+        const el = data.responseObject;
+        console.log('Lead details', el);
+        return [
+          {
+            fullName: el?.fullName,
+            firstName: el?.firstName,
+            lastName: el?.lastName,
+            geoRegion: el?.location,
+            company: el?.defaultPosition?.companyName,
+            title: el?.defaultPosition?.title || el?.headline,
+            summary: el?.summary || '',
+            linkedinURL: el?.flagshipProfileUrl,
+            contactInfo: el?.contactInfo,
+            distance: el?.degree,
+            numOfConnections: el?.numOfConnections,
+            numOfSharedConnections: el?.numOfSharedConnections || 0,
+            profilePictureDisplayImage: imageUrl(el) || '',
+            leadDetailsBrowse: leadDetailsBrowseURL(el, data),
+            leadID: el?.entityUrn,
+          },
+        ];
       },
     },
   ],

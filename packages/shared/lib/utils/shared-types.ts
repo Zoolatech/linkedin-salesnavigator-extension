@@ -24,6 +24,7 @@ export type FieldTraits = {
   displayName?: string;
   type?: 'string' | 'url' | 'image';
   fetch?: boolean;
+  browse?: boolean;
 };
 
 export type EntityTraits = {
@@ -32,7 +33,7 @@ export type EntityTraits = {
   fieldID?: string;
 };
 
-export type ValueRecord = Record<string, string | { value: string; altValue: string }>;
+export type ValueRecord = Record<string, string | { value: string; altValue: string } | undefined>;
 export type ValuesExtractor = (data: RecordedXHR) => ValueRecord[];
 export type EntityParser = {
   entity: string;

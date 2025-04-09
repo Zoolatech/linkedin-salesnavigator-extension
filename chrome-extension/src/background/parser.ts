@@ -1,19 +1,74 @@
-import type { EntityParser, EntityTraits, ValueRecord, RecordedXHR, ParserConfig } from '@extension/shared';
+import type {
+  EntityParser,
+  EntityTraits,
+  ValueRecord,
+  RecordedXHR,
+  ParserConfig,
+  FieldTraits,
+} from '@extension/shared';
 
-export function processXHR(model: ParserConfig, data: RecordedXHR) {
-  console.log('Got XHR data:', data);
-  model.parsers.forEach(parser => {
-    if (parser.urlMatcher.test(data.url?.toString() || '')) {
-      console.log('Matched parser:', parser.entity);
-      try {
-        const entity = model.entities[parser.entity];
-        const fields = extractFields(data, parser.extractor, entity?.fields);
-        console.log('Fields:', fields);
-      } catch (error) {
-        console.error('Error applying template:', error);
-      }
-    }
-  });
+export type RecordedData = {
+  entity: Record<string, ValueRecord[]>;
+  fetched: string[];
+};
+
+export function processXHR(model: ParserConfig, data: RecordedXHR, recorder: RecordedData): string[] {
+  console.log('Processing XHR:', data);
+  const toFetch: string[] = [];
+
+  let gotSome = false;
+
+  model.parsers
+    .filter(parser => parser.urlMatcher.test(data.url?.toString() || ''))
+    .map(parser => ({
+      parsedEntity: parser.entity,
+      parsedFields: extractFields(data, parser.extractor, model.entities[parser.entity]?.fields),
+    }))
+    .filter(({ parsedFields }) => parsedFields.length > 0)
+    .forEach(({ parsedEntity, parsedFields }) => {
+      const maybeEntityTraits = model.entities[parsedEntity];
+      const entityTraits: EntityTraits =
+        typeof maybeEntityTraits === 'object' ? maybeEntityTraits : { fieldID: undefined };
+      const fieldID = entityTraits.fieldID;
+      parsedFields.forEach(parsedRecord => {
+        const parsedRecordId = fieldID !== undefined ? parsedRecord[fieldID] : undefined;
+        let recordedEntity =
+          fieldID !== undefined && parsedRecordId !== undefined && recorder.entity[parsedEntity] !== undefined
+            ? recorder.entity[parsedEntity].find(recorded => recorded[fieldID] === parsedRecordId)
+            : undefined;
+
+        for (const [parsedField, parsedValue] of Object.entries(parsedRecord)) {
+          if (parsedValue === undefined) {
+            console.warn(`Value for ${parsedField} is undefined:`, parsedRecord);
+            continue;
+          }
+
+          gotSome = true;
+
+          const recordedEntities = (recorder.entity[parsedEntity] = recorder.entity[parsedEntity] || []);
+          if (recordedEntity === undefined) {
+            recordedEntity = {};
+            recordedEntities.push(recordedEntity);
+          }
+
+          recordedEntity[parsedField] = parsedValue;
+
+          const maybeFieldTraits = entityTraits.fields?.[parsedField];
+          const fieldTraits: FieldTraits = typeof maybeFieldTraits === 'object' ? maybeFieldTraits : { fetch: false };
+          const mainValue = typeof parsedValue === 'object' ? parsedValue.value : parsedValue;
+          if (fieldTraits.fetch && recorder.fetched.indexOf(mainValue) === -1 && toFetch.indexOf(mainValue) === -1) {
+            toFetch.push(mainValue);
+          }
+        }
+      });
+    });
+
+  if (gotSome) {
+    console.log('Recorded:', recorder);
+    console.log('To fetch:', toFetch);
+  }
+
+  return toFetch;
 }
 
 function extractFields(

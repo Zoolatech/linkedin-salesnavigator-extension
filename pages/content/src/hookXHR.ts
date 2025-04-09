@@ -80,8 +80,9 @@ export function hookXHR() {
           }
         }
 
-        try {
-          await chrome.runtime.sendMessage(EXTENSION_ID, {
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          {
             type: 'XHR',
             data: {
               url: this._url,
@@ -91,13 +92,39 @@ export function hookXHR() {
               responseHeaders: this.getAllResponseHeaders(),
               responseObject,
             },
-          } satisfies ExternalMessage);
-        } catch (err) {
-          console.log('Error in sendMessage', err);
-        }
+          } satisfies ExternalMessage,
+          response => {
+            if (response === undefined) {
+              console.error('Error sending message:', chrome.runtime.lastError);
+              return;
+            }
+            if (Array.isArray(response)) {
+              console.log('URLs to fetch:', response);
+              fetchUrls(response, this._requestHeaders || {});
+            } else {
+              console.log('Unexpected response:', response);
+            }
+          },
+        );
       });
     }
 
     return send.apply(this, [body]);
   };
+}
+
+// Function to fetch array of URLs with specified headers, using XMLHttpRequest.
+// Downloads should be unevenly distributed in time to avoid
+// being blocked by the server.
+export function fetchUrls(urls: string[], headers: Record<string, string>) {
+  urls.forEach((url, index) => {
+    setTimeout(() => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      Object.entries(headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+      xhr.send();
+    }, index * 2000);
+  });
 }
