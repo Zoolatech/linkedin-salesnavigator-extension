@@ -1,5 +1,5 @@
 import 'webextension-polyfill';
-import { exampleThemeStorage } from '@extension/storage';
+import { configStorage } from '@extension/storage';
 import { externalMessageSchema, parserModelLinkedin } from '@extension/shared';
 import { processXHR, type RecordedData } from './parser';
 
@@ -11,7 +11,7 @@ import { processXHR, type RecordedData } from './parser';
 // TODO: Add csv export and copy to clipboard functionality
 // TODO: Add start/stop logging button
 
-exampleThemeStorage.get().then(theme => {
+configStorage.get().then(theme => {
   console.log('theme', theme);
 });
 
