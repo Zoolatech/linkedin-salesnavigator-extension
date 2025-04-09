@@ -13,6 +13,7 @@ type ConfigStorage = BaseStorage<Config> & {
   toggleTheme: () => Promise<void>;
   toggleRecording: () => Promise<void>;
   toggleLogging: () => Promise<void>;
+  toggleDigging: () => Promise<void>;
 };
 
 const storage = createStorage<Config>(
@@ -48,6 +49,14 @@ export const configStorage: ConfigStorage = {
       return {
         ...currentConfig,
         logging: !currentConfig.logging,
+      };
+    });
+  },
+  toggleDigging: async () => {
+    await storage.set(currentConfig => {
+      return {
+        ...currentConfig,
+        digging: !currentConfig.digging,
       };
     });
   },

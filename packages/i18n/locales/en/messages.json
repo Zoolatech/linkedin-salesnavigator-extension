@@ -12,5 +12,35 @@
   },
   "loading": {
     "message": "Loading..."
+  },
+  "Recording:": {
+    "message": "Recording:"
+  },
+  "Recording...": {
+    "message": "Recording..."
+  },
+  "Idle...": {
+    "message": "Idle..."
+  },
+  "Digging:": {
+    "message": "Digging:"
+  },
+  "On": {
+    "message": "On"
+  },
+  "Off": {
+    "message": "Off"
+  },
+  "Logging:": {
+    "message": "Logging:"
+  },
+  "Theme:": {
+    "message": "Theme:"
+  },
+  "light": {
+    "message": "light"
+  },
+  "dark": {
+    "message": "dark"
   }
 }

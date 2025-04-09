@@ -33,7 +33,6 @@ const manifest = {
   description: '__MSG_extensionDescription__',
   host_permissions: ['*://*.linkedin.com/*'],
   permissions: ['storage', 'scripting', 'tabs', 'notifications', 'sidePanel'],
-  options_page: 'options/index.html',
   background: {
     service_worker: 'background.js',
     type: 'module',
