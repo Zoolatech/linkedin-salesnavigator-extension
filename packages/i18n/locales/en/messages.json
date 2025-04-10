@@ -42,5 +42,20 @@
   },
   "themeDark_message": {
     "message": "dark"
+  },
+  "digging_status": {
+    "message": "Digged:"
+  },
+  "items_status": {
+    "message": "Items:"
+  },
+  "delete_button": {
+    "message": "🗑️"
+  },
+  "delete_hint": {
+    "message": "Delete data"
+  },
+  "recorded_label": {
+    "message": "Recorded:"
   }
 }

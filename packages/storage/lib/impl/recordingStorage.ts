@@ -10,7 +10,7 @@ export const currentRecordingSchema = z.object({
 
 export type CurrentRecording = z.infer<typeof currentRecordingSchema>;
 
-const initialState: CurrentRecording = {
+export const recordingInitialState: CurrentRecording = {
   data: { entity: {}, fetched: [] },
   toFetchLeft: 0,
 };
@@ -20,7 +20,7 @@ type ConfigStorage = BaseStorage<CurrentRecording> & {
   recordData: (data: RecordedData) => Promise<void>;
 };
 
-const storage = createStorage<CurrentRecording>('recording', initialState, {
+const storage = createStorage<CurrentRecording>('recording', recordingInitialState, {
   storageEnum: StorageEnum.Local,
   liveUpdate: true,
 });

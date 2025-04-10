@@ -4,14 +4,15 @@
 
 body {
   width: 300px;
-  height: 260px;
+  /* height: 260px; */
   margin: 0;
+  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Montserrat', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
     'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  position: relative;
+  /* position: relative; */
 }
 
 code {

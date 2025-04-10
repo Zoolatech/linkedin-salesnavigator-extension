@@ -283,6 +283,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@extension/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@extension/shared':
         specifier: workspace:*
         version: link:../shared

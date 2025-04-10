@@ -43,7 +43,7 @@ export const parserModelLinkedin: ParserConfig = {
         company: 'Company',
         title: 'Title',
         summary: 'Summary',
-        linkedinURL: { displayName: 'LinkedIn URL', type: 'url', browse: true },
+        linkedinURL: { displayName: 'Browse in LinkedIn', type: 'url', browse: true },
         contactInfo: 'Contact Info',
         profilePictureDisplayImage: { type: 'image' },
         numOfConnections: 'Connections',
@@ -52,7 +52,7 @@ export const parserModelLinkedin: ParserConfig = {
         account: 'Account',
         accountRef: { entityRef: 'Account' },
         leadDetailsFetch: { type: 'url', fetch: true },
-        leadDetailsBrowse: { type: 'url', browse: true },
+        leadDetailsBrowse: { displayName: 'Browse in SalesNav', type: 'url', browse: true },
       },
     } satisfies EntityTraits,
   },
@@ -63,22 +63,25 @@ export const parserModelLinkedin: ParserConfig = {
       extractor: (data: RecordedXHR): ValueRecord[] => {
         const responseObject = data.responseObject;
         const elements = responseObject.elements || [];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return elements.map((el: any) => ({
-          fullName: el.fullName,
-          firstName: el.firstName,
-          lastName: el.lastName,
-          geoRegion: el.geoRegion,
-          company: el.currentPositions?.[0]?.companyName,
-          title: el.currentPositions?.[0]?.title,
-          profilePictureDisplayImage: imageUrl(el) || '',
-          distance: el.degree,
-          account: el.leadAssociatedAccountResolutionResult?.name || el.currentPositions?.[0]?.companyName,
-          accountRef: el.leadAssociatedAccountResolutionResult?.entityUrn || el.currentPositions?.[0]?.companyUrn,
-          leadDetailsFetch: leadDetailsFetchURL(el),
-          leadDetailsBrowse: leadDetailsBrowseURL(el, data),
-          leadID: el.entityUrn,
-        }));
+        return elements.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (el: any) =>
+            ({
+              fullName: el.fullName,
+              firstName: el.firstName,
+              lastName: el.lastName,
+              geoRegion: el.geoRegion,
+              company: el.currentPositions?.[0]?.companyName,
+              title: el.currentPositions?.[0]?.title,
+              profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: el.fullName || '' },
+              distance: el.degree,
+              account: el.leadAssociatedAccountResolutionResult?.name || el.currentPositions?.[0]?.companyName,
+              accountRef: el.leadAssociatedAccountResolutionResult?.entityUrn || el.currentPositions?.[0]?.companyUrn,
+              leadDetailsFetch: leadDetailsFetchURL(el),
+              leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: el.fullName || '' },
+              leadID: el.entityUrn,
+            }) satisfies ValueRecord,
+        );
       },
     },
     {
@@ -97,14 +100,14 @@ export const parserModelLinkedin: ParserConfig = {
             title: el?.defaultPosition?.title || el?.headline,
             summary: el?.summary || '',
             linkedinURL: el?.flagshipProfileUrl,
-            contactInfo: el?.contactInfo,
+            contactInfo: JSON.stringify(el?.contactInfo),
             distance: el?.degree,
             numOfConnections: el?.numOfConnections,
             numOfSharedConnections: el?.numOfSharedConnections || 0,
-            profilePictureDisplayImage: imageUrl(el) || '',
-            leadDetailsBrowse: leadDetailsBrowseURL(el, data),
+            profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: el.fullName || '' },
+            leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: el.fullName || '' },
             leadID: el?.entityUrn,
-          },
+          } satisfies ValueRecord,
         ];
       },
     },

@@ -46,7 +46,7 @@ export type EntityTraits = {
 };
 
 export const valueRecordSchema = z.record(
-  z.union([z.string(), z.object({ value: z.string(), altValue: z.string() })]).optional(),
+  z.union([z.string(), z.object({ value: z.string().optional(), altValue: z.string().optional() })]).optional(),
 );
 
 export type ValueRecord = z.infer<typeof valueRecordSchema>;

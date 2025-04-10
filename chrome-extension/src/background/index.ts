@@ -4,9 +4,8 @@ import { parserModelLinkedin } from '@extension/shared';
 import { externalMessageSchema } from '@extension/shared-types';
 import { processXHR } from './parser';
 
-// TODO: Display progress in side panel and popup and icon
-// TODO: Add clear storage button
-// TODO: Display records in side panel and info popup
+// TODO: Add clear storage button - check
+// TODO: Display records in info popup
 // TODO: Add csv export and copy to clipboard functionality
 
 configStorage.get().then(data => {
@@ -42,6 +41,19 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   } catch (error) {
     console.error('Error processing external message:', error);
     sendResponse([]);
+  }
+});
+
+let windowId: number;
+chrome.tabs.onActivated.addListener(activeInfo => {
+  windowId = activeInfo.windowId;
+});
+
+chrome.runtime.onMessage.addListener(async message => {
+  if (message.action === 'open_side_panel') {
+    if (windowId !== undefined) {
+      await chrome.sidePanel.open({ windowId });
+    }
   }
 });
 

@@ -58,7 +58,12 @@ export function processXHR(
           const maybeFieldTraits = entityTraits.fields?.[parsedField];
           const fieldTraits: FieldTraits = typeof maybeFieldTraits === 'object' ? maybeFieldTraits : { fetch: false };
           const mainValue = typeof parsedValue === 'object' ? parsedValue.value : parsedValue;
-          if (fieldTraits.fetch && recorder.fetched.indexOf(mainValue) === -1 && toFetch.indexOf(mainValue) === -1) {
+          if (
+            mainValue !== undefined &&
+            fieldTraits.fetch &&
+            recorder.fetched.indexOf(mainValue) === -1 &&
+            toFetch.indexOf(mainValue) === -1
+          ) {
             toFetch.push(mainValue);
           }
         }
