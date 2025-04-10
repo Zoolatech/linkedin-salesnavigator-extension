@@ -1,6 +1,6 @@
 {
   "name": "@extension/storage",
-  "version": "0.4.3",
+  "version": "0.1.0",
   "description": "chrome extension - storage",
   "type": "module",
   "private": true,
@@ -22,6 +22,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@extension/tsconfig": "workspace:*"
+    "@extension/tsconfig": "workspace:*",
+    "@extension/shared-types": "workspace:*"
   }
 }

@@ -1,5 +1,5 @@
 import { EXTENSION_ID } from '@extension/env';
-import { type ExternalMessage } from '@extension/shared';
+import { type ExternalMessage } from '@extension/shared-types';
 
 interface HookedXMLHttpRequest extends XMLHttpRequest {
   _method?: string;
@@ -113,10 +113,7 @@ export function hookXHR() {
   };
 }
 
-// Function to fetch array of URLs with specified headers, using XMLHttpRequest.
-// Downloads should be unevenly distributed in time to avoid
-// being blocked by the server.
-export function fetchUrls(urls: string[], headers: Record<string, string>) {
+function fetchUrls(urls: string[], headers: Record<string, string>) {
   urls.forEach((url, index) => {
     setTimeout(() => {
       const xhr = new XMLHttpRequest();
@@ -127,4 +124,52 @@ export function fetchUrls(urls: string[], headers: Record<string, string>) {
       xhr.send();
     }, index * 2000);
   });
+}
+
+const toFetch: XMLHttpRequest[] = [];
+let fetchIntervalID: number | undefined = undefined;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function fetchUrls2(urls: string[], headers: Record<string, string>) {
+  urls.forEach(url => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    Object.entries(headers).forEach(([key, value]) => {
+      xhr.setRequestHeader(key, value);
+    });
+    toFetch.push(xhr);
+  });
+  scheduleFetch();
+}
+
+function scheduleFetch() {
+  chrome.runtime.sendMessage(
+    EXTENSION_ID,
+    {
+      type: 'FETCH_PROGRESS',
+      data: { left: toFetch.length },
+    } satisfies ExternalMessage,
+    response => {
+      if (response === undefined && chrome.runtime.lastError) {
+        console.error('Error sending message:', chrome.runtime.lastError);
+        return;
+      }
+    },
+  );
+
+  if (toFetch.length === 0) {
+    window.clearInterval(fetchIntervalID);
+    fetchIntervalID = undefined;
+    return;
+  }
+  if (fetchIntervalID === undefined) {
+    fetchIntervalID = window.setInterval(fetchOne, 2000);
+  }
+}
+
+function fetchOne() {
+  const xhr = toFetch.shift();
+  if (xhr !== undefined) {
+    xhr.send();
+  }
+  scheduleFetch();
 }

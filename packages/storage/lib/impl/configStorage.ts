@@ -17,7 +17,7 @@ type ConfigStorage = BaseStorage<Config> & {
 };
 
 const storage = createStorage<Config>(
-  'config-storage-key',
+  'config',
   { theme: 'light', recording: false, logging: false, digging: false },
   {
     storageEnum: StorageEnum.Local,

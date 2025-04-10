@@ -5,12 +5,8 @@ import type {
   RecordedXHR,
   ParserConfig,
   FieldTraits,
-} from '@extension/shared';
-
-export type RecordedData = {
-  entity: Record<string, ValueRecord[]>;
-  fetched: string[];
-};
+  RecordedData,
+} from '@extension/shared-types';
 
 export function processXHR(model: ParserConfig, data: RecordedXHR, recorder: RecordedData): string[] {
   console.log('Processing XHR:', data);

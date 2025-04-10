@@ -1,4 +1,4 @@
-import type { RecordedXHR, ParserConfig, EntityTraits, ValueRecord } from './shared-types.js';
+import type { RecordedXHR, ParserConfig, EntityTraits, ValueRecord } from '@extension/shared-types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function leadIDPart(entityUrn: any): string | undefined {
