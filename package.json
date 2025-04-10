@@ -1,6 +1,6 @@
 {
   "name": "linkedin-sales-navigator-extension",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "Chrome Extension to help with routine tasks in Sales Navigator",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "@extension/popup",
-  "version": "0.4.3",
+  "version": "0.1.0",
   "description": "chrome extension - popup",
   "type": "module",
   "private": true,
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@extension/shared": "workspace:*",
+    "@extension/shared-types": "workspace:*",
     "@extension/storage": "workspace:*",
     "@extension/i18n": "workspace:*",
     "@extension/ui": "workspace:*"

@@ -1,6 +1,6 @@
 {
   "name": "chrome-extension",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "chrome extension - core settings",
   "type": "module",
   "private": true,
@@ -21,6 +21,7 @@
   "dependencies": {
     "@extension/env": "workspace:*",
     "@extension/shared": "workspace:*",
+    "@extension/shared-types": "workspace:*",
     "@extension/storage": "workspace:*",
     "vite-plugin-node-polyfills": "^0.23.0",
     "webextension-polyfill": "^0.12.0"

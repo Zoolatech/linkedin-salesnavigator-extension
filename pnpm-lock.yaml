@@ -147,6 +147,9 @@ importers:
       '@extension/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      '@extension/shared-types':
+        specifier: workspace:*
+        version: link:../packages/shared-types
       '@extension/storage':
         specifier: workspace:*
         version: link:../packages/storage
@@ -249,6 +252,9 @@ importers:
 
   packages/shared:
     devDependencies:
+      '@extension/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       '@extension/storage':
         specifier: workspace:*
         version: link:../storage
@@ -256,8 +262,17 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
 
+  packages/shared-types:
+    devDependencies:
+      '@extension/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+
   packages/storage:
     devDependencies:
+      '@extension/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -324,6 +339,9 @@ importers:
       '@extension/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@extension/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@extension/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -346,6 +364,9 @@ importers:
       '@extension/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@extension/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@extension/storage':
         specifier: workspace:*
         version: link:../../packages/storage
