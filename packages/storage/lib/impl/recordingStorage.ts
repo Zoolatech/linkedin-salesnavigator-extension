@@ -1,10 +1,18 @@
+import { z } from 'zod';
 import type { BaseStorage } from '../base/index.js';
 import { createStorage, StorageEnum } from '../base/index.js';
-import { type RecordedData } from '@extension/shared-types';
+import { recordedDataSchema, type RecordedData } from '@extension/shared-types';
 
-type CurrentRecording = {
-  data: RecordedData;
-  toFetchLeft: number;
+export const currentRecordingSchema = z.object({
+  data: recordedDataSchema,
+  toFetchLeft: z.number().default(0),
+});
+
+export type CurrentRecording = z.infer<typeof currentRecordingSchema>;
+
+const initialState: CurrentRecording = {
+  data: { entity: {}, fetched: [] },
+  toFetchLeft: 0,
 };
 
 type ConfigStorage = BaseStorage<CurrentRecording> & {
@@ -12,16 +20,11 @@ type ConfigStorage = BaseStorage<CurrentRecording> & {
   recordData: (data: RecordedData) => Promise<void>;
 };
 
-const storage = createStorage<CurrentRecording>(
-  'recording',
-  { data: { entity: {}, fetched: [] }, toFetchLeft: 0 },
-  {
-    storageEnum: StorageEnum.Local,
-    liveUpdate: true,
-  },
-);
+const storage = createStorage<CurrentRecording>('recording', initialState, {
+  storageEnum: StorageEnum.Local,
+  liveUpdate: true,
+});
 
-// You can extend it with your own methods
 export const recordingStorage: ConfigStorage = {
   ...storage,
   toFetchLeft: async (i: number) => {

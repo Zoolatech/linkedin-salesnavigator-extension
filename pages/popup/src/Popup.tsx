@@ -18,16 +18,17 @@ const Popup = () => {
       </header>
       <div className={`${bgColor} ${fgColor} flex flex-row flex-wrap gap-2 `}>
         <button onClick={configStorage.toggleRecording} className="flex-1">
-          {t('Recording:')} <code>{config.recording ? t('Recording...') : t('Idle...')}</code>
+          {t('recording_button')}{' '}
+          <code>{config.recording ? t('recordingRecording_message') : t('recordingIdle_message')}</code>
         </button>
         <button onClick={configStorage.toggleDigging} className="flex-1">
-          {t('Digging:')} <code>{config.digging ? t('On') : t('Off')}</code>
+          {t('digging_button')} <code>{config.digging ? t('settingOn_message') : t('settingOff_message')}</code>
         </button>
         <button onClick={configStorage.toggleLogging} className="flex-1">
-          {t('Logging:')} <code>{config.logging ? t('On') : t('Off')}</code>
+          {t('logging_button')} <code>{config.logging ? t('settingOn_message') : t('settingOff_message')}</code>
         </button>
         <button onClick={configStorage.toggleTheme} className="flex-1">
-          {t('Theme:')} <code>{isLight ? t('light') : t('dark')}</code>
+          {t('theme_button')} <code>{isLight ? t('themeLight_message') : t('themeDark_message')}</code>
         </button>
       </div>
     </div>

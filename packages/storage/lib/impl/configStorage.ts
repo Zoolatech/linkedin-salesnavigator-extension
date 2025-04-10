@@ -1,46 +1,51 @@
+import { z } from 'zod';
+
 import type { BaseStorage } from '../base/index.js';
 import { createStorage, StorageEnum } from '../base/index.js';
 
-type Theme = 'light' | 'dark';
-type Config = {
-  theme: Theme;
-  recording: boolean;
-  logging: boolean;
-  digging: boolean;
+export const currentConfigSchema = z.object({
+  recording: z.boolean().default(false),
+  digging: z.boolean().default(true),
+  logging: z.boolean().default(false),
+  theme: z.enum(['light', 'dark']).default('light'),
+});
+
+export type Config = z.infer<typeof currentConfigSchema>;
+
+const initialState: Config = {
+  recording: false,
+  digging: true,
+  logging: false,
+  theme: 'light',
 };
 
 type ConfigStorage = BaseStorage<Config> & {
-  toggleTheme: () => Promise<void>;
   toggleRecording: () => Promise<void>;
-  toggleLogging: () => Promise<void>;
   toggleDigging: () => Promise<void>;
+  toggleLogging: () => Promise<void>;
+  toggleTheme: () => Promise<void>;
 };
 
-const storage = createStorage<Config>(
-  'config',
-  { theme: 'light', recording: false, logging: false, digging: false },
-  {
-    storageEnum: StorageEnum.Local,
-    liveUpdate: true,
-  },
-);
+const storage = createStorage<Config>('config', initialState, {
+  storageEnum: StorageEnum.Local,
+  liveUpdate: true,
+});
 
-// You can extend it with your own methods
 export const configStorage: ConfigStorage = {
   ...storage,
-  toggleTheme: async () => {
-    await storage.set(currentConfig => {
-      return {
-        ...currentConfig,
-        theme: currentConfig.theme === 'light' ? 'dark' : 'light',
-      };
-    });
-  },
   toggleRecording: async () => {
     await storage.set(currentConfig => {
       return {
         ...currentConfig,
         recording: !currentConfig.recording,
+      };
+    });
+  },
+  toggleDigging: async () => {
+    await storage.set(currentConfig => {
+      return {
+        ...currentConfig,
+        digging: !currentConfig.digging,
       };
     });
   },
@@ -52,11 +57,11 @@ export const configStorage: ConfigStorage = {
       };
     });
   },
-  toggleDigging: async () => {
+  toggleTheme: async () => {
     await storage.set(currentConfig => {
       return {
         ...currentConfig,
-        digging: !currentConfig.digging,
+        theme: currentConfig.theme === 'light' ? 'dark' : 'light',
       };
     });
   },

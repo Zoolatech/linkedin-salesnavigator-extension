@@ -7,9 +7,15 @@ import type {
   FieldTraits,
   RecordedData,
 } from '@extension/shared-types';
+import { type Config } from '@extension/storage';
 
-export function processXHR(model: ParserConfig, data: RecordedXHR, recorder: RecordedData): string[] {
-  console.log('Processing XHR:', data);
+export function processXHR(
+  model: ParserConfig,
+  data: RecordedXHR,
+  recorder: RecordedData,
+  config?: Config | null,
+): string[] {
+  if (config?.logging) console.log('Processing XHR:', data);
   const toFetch: string[] = [];
 
   let gotSome = false;
@@ -35,7 +41,7 @@ export function processXHR(model: ParserConfig, data: RecordedXHR, recorder: Rec
 
         for (const [parsedField, parsedValue] of Object.entries(parsedRecord)) {
           if (parsedValue === undefined) {
-            console.warn(`Value for ${parsedField} is undefined:`, parsedRecord);
+            if (config?.logging) console.warn(`Value for ${parsedField} is undefined:`, parsedRecord);
             continue;
           }
 
@@ -59,7 +65,7 @@ export function processXHR(model: ParserConfig, data: RecordedXHR, recorder: Rec
       });
     });
 
-  if (gotSome) {
+  if (gotSome && config?.logging) {
     console.log('Recorded:', recorder);
     console.log('To fetch:', toFetch);
   }

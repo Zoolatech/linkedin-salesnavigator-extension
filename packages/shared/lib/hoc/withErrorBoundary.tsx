@@ -10,17 +10,17 @@ class ErrorBoundary extends Component<
     hasError: boolean;
   }
 > {
-  state = { hasError: false };
+  override state = { hasError: false };
 
   static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error(error, errorInfo);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return this.props.fallback;
     }

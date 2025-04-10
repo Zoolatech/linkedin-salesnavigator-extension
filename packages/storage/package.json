@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@extension/tsconfig": "workspace:*",
-    "@extension/shared-types": "workspace:*"
+    "@extension/shared-types": "workspace:*",
+    "@extension/tsconfig": "workspace:*"
   }
 }

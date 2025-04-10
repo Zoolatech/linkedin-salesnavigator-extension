@@ -20,7 +20,7 @@ const SidePanel = () => {
         <p>
           Edit <code>pages/side-panel/src/SidePanel.tsx</code>
         </p>
-        <ToggleButton onClick={configStorage.toggleTheme}>{t('toggleTheme')}</ToggleButton>
+        <ToggleButton onClick={configStorage.toggleTheme}>{t('toggleTheme_button')}</ToggleButton>
       </header>
     </div>
   );

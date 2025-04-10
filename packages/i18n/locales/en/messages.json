@@ -7,40 +7,40 @@
     "description": "Extension name",
     "message": "Zoolatech Sales Navigator Extension"
   },
-  "toggleTheme": {
+  "toggleTheme_button": {
     "message": "Toggle theme"
   },
-  "loading": {
+  "loading_message": {
     "message": "Loading..."
   },
-  "Recording:": {
+  "recording_button": {
     "message": "Recording:"
   },
-  "Recording...": {
+  "recordingRecording_message": {
     "message": "Recording..."
   },
-  "Idle...": {
+  "recordingIdle_message": {
     "message": "Idle..."
   },
-  "Digging:": {
+  "digging_button": {
     "message": "Digging:"
   },
-  "On": {
-    "message": "On"
-  },
-  "Off": {
-    "message": "Off"
-  },
-  "Logging:": {
+  "logging_button": {
     "message": "Logging:"
   },
-  "Theme:": {
+  "settingOn_message": {
+    "message": "On"
+  },
+  "settingOff_message": {
+    "message": "Off"
+  },
+  "theme_button": {
     "message": "Theme:"
   },
-  "light": {
+  "themeLight_message": {
     "message": "light"
   },
-  "dark": {
+  "themeDark_message": {
     "message": "dark"
   }
 }

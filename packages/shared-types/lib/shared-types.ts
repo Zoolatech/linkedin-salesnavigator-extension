@@ -45,7 +45,11 @@ export type EntityTraits = {
   fieldID?: string;
 };
 
-export type ValueRecord = Record<string, string | { value: string; altValue: string } | undefined>;
+export const valueRecordSchema = z.record(
+  z.union([z.string(), z.object({ value: z.string(), altValue: z.string() })]).optional(),
+);
+
+export type ValueRecord = z.infer<typeof valueRecordSchema>;
 export type ValuesExtractor = (data: RecordedXHR) => ValueRecord[];
 export type EntityParser = {
   entity: string;
@@ -58,7 +62,8 @@ export type ParserConfig = {
   parsers: EntityParser[];
 };
 
-export type RecordedData = {
-  entity: Record<string, ValueRecord[]>;
-  fetched: string[];
-};
+export const recordedDataSchema = z.object({
+  entity: z.record(z.array(valueRecordSchema)).default({}),
+  fetched: z.array(z.string()).default([]),
+});
+export type RecordedData = z.infer<typeof recordedDataSchema>;

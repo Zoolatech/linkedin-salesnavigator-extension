@@ -32,6 +32,7 @@ const manifest = {
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   host_permissions: ['*://*.linkedin.com/*'],
+  // host_permissions: ['<all_urls>'],
   permissions: ['storage', 'scripting', 'tabs', 'notifications', 'sidePanel'],
   background: {
     service_worker: 'background.js',
@@ -43,24 +44,28 @@ const manifest = {
   },
   chrome_url_overrides: {},
   icons: {
+    '34': 'icon-34.png',
     '128': 'icon-128.png',
   },
   content_scripts: [
     {
       matches: ['*://*.linkedin.com/*'],
+      // matches: ['http://*/*', 'https://*/*', '<all_urls>'],
       js: ['content/index.iife.js'],
       run_at: 'document_start',
       world: 'MAIN',
     },
     {
       matches: ['*://*.linkedin.com/*'],
+      // matches: ['http://*/*', 'https://*/*', '<all_urls>'],
       css: ['content.css'],
     },
   ],
   web_accessible_resources: [
     {
-      resources: ['*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png'],
       matches: ['*://*.linkedin.com/*'],
+      // matches: ['*://*/*'],
+      resources: ['*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png'],
     },
   ],
   side_panel: {
@@ -68,6 +73,7 @@ const manifest = {
   },
   externally_connectable: {
     matches: ['*://*.linkedin.com/*'],
+    // matches: ['<all_urls>'],
   },
 } satisfies chrome.runtime.ManifestV3;
 
