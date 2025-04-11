@@ -35,3 +35,63 @@ export function selectAllBrowseItems(
       .filter(([, items]) => items.size > 0),
   );
 }
+
+export type HeaderCell = {
+  fieldName: string;
+  displayName: string;
+};
+
+export type TabularForm = {
+  header: HeaderCell[];
+  rows: string[][];
+};
+
+type ValueRecordValue = ValueRecord[keyof ValueRecord];
+function toValue(value?: ValueRecordValue): string | undefined {
+  return typeof value === 'object' ? value.value : value;
+}
+
+function createHeader(fields: EntityTraits['fields'], recorded: ValueRecord[]): TabularForm['header'] {
+  const fieldsMap = new Map(
+    fields === undefined
+      ? []
+      : Object.entries(fields).map(([fieldName, maybeTraits]) => [
+          fieldName,
+          typeof maybeTraits === 'object' ? maybeTraits.displayName || fieldName : maybeTraits,
+        ]),
+  );
+  recorded.forEach(record => {
+    Object.entries(record).forEach(([fieldName, value]) => {
+      if (toValue(value) !== undefined && !fieldsMap.has(fieldName)) {
+        fieldsMap.set(fieldName, fieldName);
+      }
+    });
+  });
+  return Array.from(fieldsMap.entries()).map(([fieldName, displayName]) => ({ fieldName, displayName }));
+}
+
+export function createTabularForm(fields: EntityTraits['fields'], recorded: ValueRecord[]): TabularForm {
+  const header: TabularForm['header'] = createHeader(fields, recorded);
+  const rows: string[][] = recorded.map(record => header.map(cell => toValue(record[cell.fieldName]) || ''));
+  return { header, rows };
+}
+
+function escapeCSVValue(value: string): string {
+  return `"${`${value}`.replace(/"/g, '""')}"`;
+}
+
+function escapeTabularValue(value: string): string {
+  return `${value}`.replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+}
+
+export function tableToCSV(table: TabularForm): string {
+  const rows = [table.header.map(h => h.displayName)];
+  rows.push(...table.rows);
+  return rows.map(r => r.map(c => escapeCSVValue(c)).join(',')).join('\r\n');
+}
+
+export function tableToTabular(table: TabularForm): string {
+  const rows = [table.header.map(h => h.displayName)];
+  rows.push(...table.rows);
+  return rows.map(r => r.map(c => escapeTabularValue(c)).join('\t')).join('\r\n');
+}

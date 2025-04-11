@@ -31,6 +31,17 @@ function imageUrl(el: any): string | undefined {
     : undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toString(el: any): string | undefined {
+  return (typeof el) in ['string', 'undefined']
+    ? el
+    : typeof el === 'object'
+      ? JSON.stringify(el)
+      : typeof el.toString === 'function'
+        ? el.toString()
+        : `${el}`;
+}
+
 export const parserModelLinkedin: ParserConfig = {
   entities: {
     Lead: {
@@ -67,19 +78,23 @@ export const parserModelLinkedin: ParserConfig = {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (el: any) =>
             ({
-              fullName: el.fullName,
-              firstName: el.firstName,
-              lastName: el.lastName,
-              geoRegion: el.geoRegion,
-              company: el.currentPositions?.[0]?.companyName,
-              title: el.currentPositions?.[0]?.title,
-              profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: el.fullName || '' },
-              distance: el.degree,
-              account: el.leadAssociatedAccountResolutionResult?.name || el.currentPositions?.[0]?.companyName,
-              accountRef: el.leadAssociatedAccountResolutionResult?.entityUrn || el.currentPositions?.[0]?.companyUrn,
+              fullName: toString(el.fullName),
+              firstName: toString(el.firstName),
+              lastName: toString(el.lastName),
+              geoRegion: toString(el.geoRegion),
+              company: toString(el.currentPositions?.[0]?.companyName),
+              title: toString(el.currentPositions?.[0]?.title),
+              profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: toString(el.fullName) || '' },
+              distance: toString(el.degree),
+              account:
+                toString(el.leadAssociatedAccountResolutionResult?.name) ||
+                toString(el.currentPositions?.[0]?.companyName),
+              accountRef:
+                toString(el.leadAssociatedAccountResolutionResult?.entityUrn) ||
+                toString(el.currentPositions?.[0]?.companyUrn),
               leadDetailsFetch: leadDetailsFetchURL(el),
-              leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: el.fullName || '' },
-              leadID: el.entityUrn,
+              leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: toString(el.fullName) || '' },
+              leadID: toString(el.entityUrn),
             }) satisfies ValueRecord,
         );
       },
@@ -92,21 +107,21 @@ export const parserModelLinkedin: ParserConfig = {
         console.log('Lead details', el);
         return [
           {
-            fullName: el?.fullName,
-            firstName: el?.firstName,
-            lastName: el?.lastName,
-            geoRegion: el?.location,
-            company: el?.defaultPosition?.companyName,
-            title: el?.defaultPosition?.title || el?.headline,
-            summary: el?.summary || '',
-            linkedinURL: el?.flagshipProfileUrl,
+            fullName: toString(el?.fullName),
+            firstName: toString(el?.firstName),
+            lastName: toString(el?.lastName),
+            geoRegion: toString(el?.location),
+            company: toString(el?.defaultPosition?.companyName),
+            title: toString(el?.defaultPosition?.title) || toString(el?.headline),
+            summary: toString(el?.summary) || '',
+            linkedinURL: toString(el?.flagshipProfileUrl),
             contactInfo: JSON.stringify(el?.contactInfo),
-            distance: el?.degree,
-            numOfConnections: el?.numOfConnections,
-            numOfSharedConnections: el?.numOfSharedConnections || 0,
-            profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: el.fullName || '' },
-            leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: el.fullName || '' },
-            leadID: el?.entityUrn,
+            distance: toString(el?.degree),
+            numOfConnections: toString(el?.numOfConnections),
+            numOfSharedConnections: toString(el?.numOfSharedConnections),
+            profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: toString(el.fullName) || '' },
+            leadDetailsBrowse: { value: leadDetailsBrowseURL(el, data) || '', altValue: toString(el.fullName) || '' },
+            leadID: toString(el?.entityUrn),
           } satisfies ValueRecord,
         ];
       },

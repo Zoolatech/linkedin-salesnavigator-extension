@@ -1,5 +1,12 @@
 import { configStorage, recordingStorage } from '@extension/storage';
-import { parserModelLinkedin, selectAllBrowseItems, useStorage } from '@extension/shared';
+import {
+  createTabularForm,
+  parserModelLinkedin,
+  selectAllBrowseItems,
+  tableToCSV,
+  tableToTabular,
+  useStorage,
+} from '@extension/shared';
 import type { ComponentPropsWithoutRef } from 'react';
 import { cn } from '@/lib/utils';
 import { t } from '@extension/i18n';
@@ -24,6 +31,25 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
   const isLight = config.theme === 'light';
   const recording = useStorage(recordingStorage);
   const browseItems = selectAllBrowseItems(parserModelLinkedin.entities, recording.data.entity);
+
+  function downloadCSV(entityName: string): void {
+    const table = createTabularForm(
+      parserModelLinkedin.entities[entityName]?.fields,
+      recording.data.entity[entityName] || [],
+    );
+    const csv = tableToCSV(table);
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    chrome.downloads.download({ url, filename: `${entityName}.csv` });
+  }
+
+  function copyToClipboard(entityName: string): void {
+    const table = createTabularForm(
+      parserModelLinkedin.entities[entityName]?.fields,
+      recording.data.entity[entityName] || [],
+    );
+    const tabular = tableToTabular(table);
+    navigator.clipboard.writeText(tabular);
+  }
 
   return (
     <div
@@ -52,15 +78,12 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
                     </li>
                   ))}
                 <li className={cn('flex gap-2 mt-2')}>
-                  <button
-                    className={cn('hover:bg-slate-500')}
-                    onClick={() => console.log('Download CSV')}
-                    title="Download CSV">
+                  <button className={cn('hover:bg-slate-500')} onClick={() => downloadCSV(key)} title="Download CSV">
                     <span>{t('csv_button')}</span>
                   </button>
                   <button
                     className={cn('hover:bg-slate-500')}
-                    onClick={() => console.log('Copy to Clipboard')}
+                    onClick={() => copyToClipboard(key)}
                     title="Copy to Clipboard">
                     <span>{t('clipboard_button')}</span>
                   </button>
