@@ -7,6 +7,7 @@ import { processXHR } from './parser';
 // TODO: Add clear storage button - check
 // TODO: Display records in info popup
 // TODO: Add csv export and copy to clipboard functionality
+// TODO: Problem with initial value for storage
 
 configStorage.get().then(data => {
   console.log('Startup config', data);
