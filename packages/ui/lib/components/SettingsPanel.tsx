@@ -12,7 +12,7 @@ export const SettingsPanel = ({ className, children, ...props }: SettingsPanelPr
 
   return (
     <div
-      className={cn(className, 'flex gap-2 border rounded-lg p-2', isLight ? 'border-gray-800' : 'border-slate-50 ')}
+      className={cn(className, 'flex gap-2 border rounded-lg p-2', isLight ? 'border-gray-800' : 'border-slate-50')}
       {...props}>
       <button onClick={configStorage.toggleRecording} className={cn('flex-1')}>
         {t('recording_button')}{' '}

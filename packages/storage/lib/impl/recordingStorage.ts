@@ -15,7 +15,7 @@ export const recordingInitialState: CurrentRecording = {
   toFetchLeft: 0,
 };
 
-type ConfigStorage = BaseStorage<CurrentRecording> & {
+type RecordingStorage = BaseStorage<CurrentRecording> & {
   toFetchLeft: (i: number) => Promise<void>;
   recordData: (data: RecordedData) => Promise<void>;
 };
@@ -25,7 +25,7 @@ const storage = createStorage<CurrentRecording>('recording', recordingInitialSta
   liveUpdate: true,
 });
 
-export const recordingStorage: ConfigStorage = {
+export const recordingStorage: RecordingStorage = {
   ...storage,
   toFetchLeft: async (i: number) => {
     await storage.set(currentRecording => {

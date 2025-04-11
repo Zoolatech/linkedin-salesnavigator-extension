@@ -16,7 +16,7 @@ export const RecordingPanel = ({ className, children, ...props }: RecordingPanel
       className={cn(
         className,
         `flex justify-between gap-4 border rounded-lg p-2`,
-        isLight ? 'border-gray-800' : 'border-slate-50 ',
+        isLight ? 'border-gray-800' : 'border-slate-50',
       )}
       {...props}>
       <div className={cn('flex justify-between basis-2/5')}>

@@ -57,5 +57,14 @@
   },
   "recorded_label": {
     "message": "Recorded:"
+  },
+  "link_button": {
+    "message": "🔗"
+  },
+  "csv_button": {
+    "message": "📥"
+  },
+  "clipboard_button": {
+    "message": "📋"
   }
 }
