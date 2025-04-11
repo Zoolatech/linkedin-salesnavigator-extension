@@ -107,7 +107,6 @@ export const parserModelLinkedin: ParserConfig = {
       urlMatcher: /linkedin.com\/sales-api\/salesApiProfiles\//i,
       extractor: (data: RecordedXHR): ValueRecord[] => {
         const el = data.responseObject;
-        console.log('Lead details', el);
         return [
           {
             fullName: toString(el?.fullName),
