@@ -116,19 +116,19 @@ export function hookXHR() {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function fetchUrls(urls: string[], headers: Record<string, string>) {
-  urls.forEach((url, index) => {
-    setTimeout(() => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      Object.entries(headers).forEach(([key, value]) => {
-        xhr.setRequestHeader(key, value);
-      });
-      xhr.send();
-    }, index * 2000);
-  });
-}
+// Disabled - working code but does not allow progress tracking
+// function fetchUrls(urls: string[], headers: Record<string, string>) {
+//   urls.forEach((url, index) => {
+//     setTimeout(() => {
+//       const xhr = new XMLHttpRequest();
+//       xhr.open('GET', url, true);
+//       Object.entries(headers).forEach(([key, value]) => {
+//         xhr.setRequestHeader(key, value);
+//       });
+//       xhr.send();
+//     }, index * 2000);
+//   });
+// }
 
 const FETCH_QUEUE: XMLHttpRequest[] = [];
 let FETCHER_INTERVAL_ID: number | undefined = undefined;
