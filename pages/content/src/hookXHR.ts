@@ -132,7 +132,10 @@ function fetchUrls(urls: string[], headers: Record<string, string>) {
 
 const FETCH_QUEUE: XMLHttpRequest[] = [];
 let FETCHER_INTERVAL_ID: number | undefined = undefined;
-function fetchUrls2(urls: string[], headers: Record<string, string>) {
+function fetchUrls2(urls: string[], headers: Record<string, string>): void {
+  if (urls.length === 0) {
+    return;
+  }
   urls.forEach(url => {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -144,7 +147,7 @@ function fetchUrls2(urls: string[], headers: Record<string, string>) {
   scheduleFetch();
 }
 
-function scheduleFetch() {
+function scheduleFetch(): void {
   chrome.runtime.sendMessage(
     EXTENSION_ID,
     {
@@ -169,7 +172,7 @@ function scheduleFetch() {
   }
 }
 
-function fetchOne() {
+function fetchOne(): void {
   const xhr = FETCH_QUEUE.shift();
   if (xhr !== undefined) {
     xhr.send();

@@ -6,6 +6,19 @@ import { t } from '@extension/i18n';
 
 type RecordedPanelProps = ComponentPropsWithoutRef<'div'>;
 
+async function openUrls(urls: string[]): Promise<void> {
+  const newWindow = await chrome.windows.create({ focused: true, setSelfAsOpener: true });
+  urls.forEach((url, index) => {
+    setTimeout(async () => {
+      try {
+        await chrome.tabs.create({ windowId: newWindow.id, url });
+      } catch (error) {
+        console.error(error);
+      }
+    }, index * 1000);
+  });
+}
+
 export const RecordedPanel = ({ className, children, ...props }: RecordedPanelProps) => {
   const config = useStorage(configStorage);
   const isLight = config.theme === 'light';
@@ -33,7 +46,7 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
                     <li key={fieldName}>
                       <button
                         className={cn('px-2 py-1 flex items-center gap-1 border-b border-dashed hover:bg-slate-500')}
-                        onClick={() => console.log(`Field: ${fieldName}, Values:`, values)}>
+                        onClick={() => openUrls(values)}>
                         {fieldName} ({values.length}) <span>{t('link_button')}</span>
                       </button>
                     </li>
