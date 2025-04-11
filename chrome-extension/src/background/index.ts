@@ -4,7 +4,6 @@ import { parserModelLinkedin } from '@extension/shared';
 import { externalMessageSchema } from '@extension/shared-types';
 import { processXHR } from './parser';
 
-// TODO: Add clear storage button - check
 // TODO: Display records in info popup
 // TODO: Problem with initial value for storage
 
