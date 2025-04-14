@@ -40,12 +40,14 @@ const manifest = {
   },
   action: {
     default_popup: 'popup/index.html',
-    default_icon: 'icon-34.png',
+    default_icon: 'Zoolatech_Icon_Light_128.png',
   },
   chrome_url_overrides: {},
   icons: {
-    '34': 'icon-34.png',
-    '128': 'icon-128.png',
+    '16': 'Zoolatech_Icon_Light_16.png',
+    '32': 'Zoolatech_Icon_Light_32.png',
+    '48': 'Zoolatech_Icon_Light_48.png',
+    '128': 'Zoolatech_Icon_Light_128.png',
   },
   content_scripts: [
     {
