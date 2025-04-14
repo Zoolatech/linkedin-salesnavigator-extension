@@ -86,12 +86,12 @@ export const parserModelLinkedin: ParserConfig = {
               title: toString(el?.currentPositions?.[0]?.title),
               profilePictureDisplayImage: { value: imageUrl(el) || '', altValue: toString(el?.fullName) || '' },
               distance: toString(el?.degree),
-              account:
-                toString(el?.leadAssociatedAccountResolutionResult?.name) ||
-                toString(el?.currentPositions?.[0]?.companyName),
-              accountRef:
-                toString(el?.leadAssociatedAccountResolutionResult?.entityUrn) ||
-                toString(el?.currentPositions?.[0]?.companyUrn),
+              account: toString(
+                el?.leadAssociatedAccountResolutionResult?.name || el?.currentPositions?.[0]?.companyName,
+              ),
+              accountRef: toString(
+                el?.leadAssociatedAccountResolutionResult?.entityUrn || el?.currentPositions?.[0]?.companyUrn,
+              ),
               leadDetailsFetch: leadDetailsFetchURL(el),
               leadDetailsBrowse: {
                 value: leadDetailsBrowseURL(el, data) || '',
