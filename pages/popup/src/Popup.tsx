@@ -7,9 +7,6 @@ const Popup = () => {
   const config = useStorage(configStorage);
   const isLight = config.theme === 'light';
   const logo = isLight ? 'popup/Zoolatech_Icon.svg' : 'popup/Zoolatech_Icon_Light.svg';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const className =
-    'basis-2/5 basis-auto basis-full border border-b border-dashed border-gray-800 border-slate-50 flex flex-1 flex-col font-medium gap-1 gap-2 gap-4 hover:bg-slate-500 items-center justify-between list-disc ml-4 mt-2 p-2 px-2 py-1 rounded-lg text-center text-red-500 text-sm';
 
   return (
     <div className={`App ${isLight ? 'bg-slate-50 text-gray-900' : 'bg-gray-800 text-gray-100'}`}>

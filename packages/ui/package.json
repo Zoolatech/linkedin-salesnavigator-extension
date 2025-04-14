@@ -33,11 +33,5 @@
   "devDependencies": {
     "@extension/tsconfig": "workspace:*",
     "tsc-alias": "^1.8.10"
-  },
-  "postcss": {
-    "plugins": {
-      "tailwindcss": {},
-      "autoprefixer": {}
-    }
   }
 }

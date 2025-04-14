@@ -5,7 +5,6 @@ import { externalMessageSchema, type XHRRequest, type XHRResponseHeader } from '
 import { processXHR } from './parser';
 
 // TODO: Display records in info popup
-// TODO: Find out how to pass styles correctly into child elements
 
 configStorage.get().then(data => {
   console.log('Startup config', data);
