@@ -2,17 +2,24 @@ import { z } from 'zod';
 
 export type ValueOf<T> = T[keyof T];
 
-export const recordedXHRSchema = z.object({
+const xhrRequestSchema = z.object({
   method: z.string().optional(),
-  url: z.union([z.string(), z.instanceof(URL)]).optional(),
+  url: z.string().optional(),
   requestHeaders: z.record(z.string()).optional(),
   requestBody: z.any().optional(),
-  responseHeaders: z.string().nullable().optional(),
-  responseObject: z.any(),
 });
 
-export const fetchProgressSchema = z.object({
-  left: z.number(),
+export type XHRRequest = z.infer<typeof xhrRequestSchema>;
+
+const xhrResponseHeaderSchema = xhrRequestSchema.extend({
+  responseHeaders: z.string().nullable().optional(),
+  responseStatus: z.number(),
+});
+
+export type XHRResponseHeader = z.infer<typeof xhrResponseHeaderSchema>;
+
+export const recordedXHRSchema = xhrResponseHeaderSchema.extend({
+  responseObject: z.any(),
 });
 
 export const recordedXHRMessageSchema = z.object({
@@ -20,15 +27,13 @@ export const recordedXHRMessageSchema = z.object({
   data: recordedXHRSchema,
 });
 
-export const fetchProgressMessageSchema = z.object({
-  type: z.literal('FETCH_PROGRESS'),
-  data: fetchProgressSchema,
+export const workerMessageSchema = z.object({
+  type: z.literal('WORKER'),
 });
 
-export const externalMessageSchema = z.union([recordedXHRMessageSchema, fetchProgressMessageSchema]);
+export const externalMessageSchema = z.discriminatedUnion('type', [recordedXHRMessageSchema, workerMessageSchema]);
 
 export type RecordedXHR = z.infer<typeof recordedXHRSchema>;
-export type FetchProgress = z.infer<typeof fetchProgressSchema>;
 export type ExternalMessage = z.infer<typeof externalMessageSchema>;
 
 export type FieldTraits = {
@@ -62,8 +67,16 @@ export type ParserConfig = {
   parsers: EntityParser[];
 };
 
+const fetcherSchema = z.object({
+  done: z.array(z.string()).default([]),
+  error: z.array(xhrResponseHeaderSchema).default([]),
+  progress: z.array(xhrRequestSchema).default([]),
+});
+
+export type Fetcher = z.infer<typeof fetcherSchema>;
+
 export const recordedDataSchema = z.object({
   entity: z.record(z.array(valueRecordSchema)).default({}),
-  fetched: z.array(z.string()).default([]),
+  fetcher: fetcherSchema.default({}),
 });
 export type RecordedData = z.infer<typeof recordedDataSchema>;

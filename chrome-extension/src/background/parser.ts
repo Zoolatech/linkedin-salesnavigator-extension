@@ -12,7 +12,7 @@ import { type Config } from '@extension/storage';
 export function processXHR(
   model: ParserConfig,
   data: RecordedXHR,
-  recorder: RecordedData,
+  entity: RecordedData['entity'],
   config?: Config | null,
 ): string[] {
   if (config?.logging) console.log('Processing XHR:', data);
@@ -35,8 +35,8 @@ export function processXHR(
       parsedFields.forEach(parsedRecord => {
         const parsedRecordId = fieldID !== undefined ? parsedRecord[fieldID] : undefined;
         let recordedEntity =
-          fieldID !== undefined && parsedRecordId !== undefined && recorder.entity[parsedEntity] !== undefined
-            ? recorder.entity[parsedEntity].find(recorded => recorded[fieldID] === parsedRecordId)
+          fieldID !== undefined && parsedRecordId !== undefined && entity[parsedEntity] !== undefined
+            ? entity[parsedEntity].find(recorded => recorded[fieldID] === parsedRecordId)
             : undefined;
 
         for (const [parsedField, parsedValue] of Object.entries(parsedRecord)) {
@@ -47,7 +47,7 @@ export function processXHR(
 
           gotSome = true;
 
-          const recordedEntities = (recorder.entity[parsedEntity] = recorder.entity[parsedEntity] || []);
+          const recordedEntities = (entity[parsedEntity] = entity[parsedEntity] || []);
           if (recordedEntity === undefined) {
             recordedEntity = {};
             recordedEntities.push(recordedEntity);
@@ -58,12 +58,7 @@ export function processXHR(
           const maybeFieldTraits = entityTraits.fields?.[parsedField];
           const fieldTraits: FieldTraits = typeof maybeFieldTraits === 'object' ? maybeFieldTraits : { fetch: false };
           const mainValue = typeof parsedValue === 'object' ? parsedValue.value : parsedValue;
-          if (
-            mainValue !== undefined &&
-            fieldTraits.fetch &&
-            recorder.fetched.indexOf(mainValue) === -1 &&
-            toFetch.indexOf(mainValue) === -1
-          ) {
+          if (mainValue !== undefined && fieldTraits.fetch) {
             toFetch.push(mainValue);
           }
         }
@@ -71,7 +66,7 @@ export function processXHR(
     });
 
   if (gotSome && config?.logging) {
-    console.log('Recorded:', recorder);
+    console.log('Recorded:', entity);
     console.log('To fetch:', toFetch);
   }
 

@@ -1,5 +1,5 @@
 import { EXTENSION_ID } from '@extension/env';
-import { type ExternalMessage } from '@extension/shared-types';
+import type { RecordedXHR, XHRRequest, ExternalMessage } from '@extension/shared-types';
 
 interface HookedXMLHttpRequest extends XMLHttpRequest {
   _method?: string;
@@ -46,7 +46,30 @@ export function hookXHR() {
   XHR.send = function (body?: Document | XMLHttpRequestBodyInit | null): void {
     if (this._method === undefined || MATCHED_METHODS.test(this._method)) {
       this.addEventListener('load', async () => {
-        if (this.readyState !== this.DONE || this.status !== 200) {
+        if (this.readyState !== this.DONE) {
+          return;
+        }
+
+        const sendXHRMessage = (data: RecordedXHR) => {
+          try {
+            chrome.runtime.sendMessage(EXTENSION_ID, { type: 'XHR', data } satisfies ExternalMessage);
+          } catch (err) {
+            console.error('Error sending message:', err);
+            throw err;
+          }
+        };
+
+        const baseData = {
+          url: this._url?.toString(),
+          method: this._method,
+          requestHeaders: this._requestHeaders,
+          requestBody: body,
+          responseHeaders: this.getAllResponseHeaders(),
+          responseStatus: this.status,
+        };
+
+        if (this.status !== 200) {
+          sendXHRMessage(baseData);
           return;
         }
 
@@ -85,30 +108,8 @@ export function hookXHR() {
           }
         }
 
-        const message: ExternalMessage = {
-          type: 'XHR',
-          data: {
-            url: this._url,
-            method: this._method,
-            requestHeaders: this._requestHeaders,
-            requestBody: body,
-            responseHeaders: this.getAllResponseHeaders(),
-            responseObject,
-          },
-        };
-        if (LOGGING) console.log('Ready to serve:', message);
-        chrome.runtime.sendMessage(EXTENSION_ID, message, response => {
-          if (response === undefined) {
-            console.error('Error sending message:', chrome.runtime.lastError);
-            return;
-          }
-          if (Array.isArray(response)) {
-            if (LOGGING) console.log('URLs to fetch:', response);
-            fetchUrls2(response, this._requestHeaders || {});
-          } else {
-            console.log('Unexpected response:', response);
-          }
-        });
+        if (LOGGING) console.log('Ready to serve:', { ...baseData, responseObject });
+        sendXHRMessage({ ...baseData, responseObject });
       });
     }
 
@@ -116,66 +117,31 @@ export function hookXHR() {
   };
 }
 
-// Disabled - working code but does not allow progress tracking
-// function fetchUrls(urls: string[], headers: Record<string, string>) {
-//   urls.forEach((url, index) => {
-//     setTimeout(() => {
-//       const xhr = new XMLHttpRequest();
-//       xhr.open('GET', url, true);
-//       Object.entries(headers).forEach(([key, value]) => {
-//         xhr.setRequestHeader(key, value);
-//       });
-//       xhr.send();
-//     }, index * 2000);
-//   });
-// }
+const FETCH_QUEUE: XHRRequest[] = [];
 
-const FETCH_QUEUE: XMLHttpRequest[] = [];
-let FETCHER_INTERVAL_ID: number | undefined = undefined;
-function fetchUrls2(urls: string[], headers: Record<string, string>): void {
-  if (urls.length === 0) {
-    return;
+window.setInterval(() => {
+  if (FETCH_QUEUE.length > 0) {
+    const req = FETCH_QUEUE.shift();
+    if (req !== undefined) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(req.method ?? 'GET', req.url ?? '', true);
+      Object.entries(req.requestHeaders ?? {}).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+      xhr.send(req.requestBody);
+    }
+  } else {
+    try {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: 'WORKER' } satisfies ExternalMessage,
+        (response: XHRRequest[]) => {
+          FETCH_QUEUE.push(...response);
+        },
+      );
+    } catch (err) {
+      console.error('Error sending message:', err);
+      throw err;
+    }
   }
-  urls.forEach(url => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    Object.entries(headers).forEach(([key, value]) => {
-      xhr.setRequestHeader(key, value);
-    });
-    FETCH_QUEUE.push(xhr);
-  });
-  scheduleFetch();
-}
-
-function scheduleFetch(): void {
-  chrome.runtime.sendMessage(
-    EXTENSION_ID,
-    {
-      type: 'FETCH_PROGRESS',
-      data: { left: FETCH_QUEUE.length },
-    } satisfies ExternalMessage,
-    response => {
-      if (response === undefined && chrome.runtime.lastError) {
-        console.error('Error sending message:', chrome.runtime.lastError);
-        return;
-      }
-    },
-  );
-
-  if (FETCH_QUEUE.length === 0) {
-    window.clearInterval(FETCHER_INTERVAL_ID);
-    FETCHER_INTERVAL_ID = undefined;
-    return;
-  }
-  if (FETCHER_INTERVAL_ID === undefined) {
-    FETCHER_INTERVAL_ID = window.setInterval(fetchOne, 2000);
-  }
-}
-
-function fetchOne(): void {
-  const xhr = FETCH_QUEUE.shift();
-  if (xhr !== undefined) {
-    xhr.send();
-  }
-  scheduleFetch();
-}
+}, 2000);

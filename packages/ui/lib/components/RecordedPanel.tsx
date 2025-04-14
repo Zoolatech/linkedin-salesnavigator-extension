@@ -30,12 +30,12 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
   const config = useStorage(configStorage);
   const isLight = config.theme === 'light';
   const recording = useStorage(recordingStorage);
-  const browseItems = selectAllBrowseItems(parserModelLinkedin.entities, recording.data.entity);
+  const browseItems = selectAllBrowseItems(parserModelLinkedin.entities, recording.entity);
 
   function downloadCSV(entityName: string): void {
     const table = createTabularForm(
       parserModelLinkedin.entities[entityName]?.fields,
-      recording.data.entity[entityName] || [],
+      recording.entity[entityName] || [],
     );
     const csv = tableToCSV(table);
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
@@ -45,7 +45,7 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
   function copyToClipboard(entityName: string): void {
     const table = createTabularForm(
       parserModelLinkedin.entities[entityName]?.fields,
-      recording.data.entity[entityName] || [],
+      recording.entity[entityName] || [],
     );
     const tabular = tableToTabular(table);
     navigator.clipboard.writeText(tabular);
@@ -62,9 +62,9 @@ export const RecordedPanel = ({ className, children, ...props }: RecordedPanelPr
       <div className={cn('flex flex-col basis-full')}>
         <div className={cn('font-medium text-center')}>{t('recorded_label')}</div>
         <ul>
-          {Object.keys(recording.data.entity).map(key => (
+          {Object.keys(recording.entity).map(key => (
             <li key={key}>
-              {key}: {recording.data.entity[key]?.length || 0}
+              {key}: {recording.entity[key]?.length || 0}
               <ul className={cn('list-disc ml-4')}>
                 {Array.from(browseItems.get(key)?.entries() || [])
                   .filter(([, values]) => values.length > 0)

@@ -22,20 +22,20 @@ export const RecordingPanel = ({ className, children, ...props }: RecordingPanel
       <div className={cn('flex justify-between basis-2/5')}>
         <span>{t('items_status')}</span>
         <span>
-          {Object.keys(recording.data.entity).reduce((acc, key) => {
-            return acc + (recording.data.entity[key]?.length || 0);
+          {Object.keys(recording.entity).reduce((acc, key) => {
+            return acc + (recording.entity[key]?.length || 0);
           }, 0)}
         </span>
       </div>
       <div className={cn('flex justify-between basis-2/5')}>
         <span>{t('digging_status')}</span>
         <span>
-          {recording.data.fetched.length - recording.toFetchLeft} / {recording.data.fetched.length}
+          {recording.fetcher.done.length} / {recording.fetcher.progress.length + recording.fetcher.done.length}
         </span>
       </div>
       <div className={cn('flex justify-between basis-auto')}>
         <button
-          onClick={() => recordingStorage.set(recordingInitialState)}
+          onClick={() => recordingStorage.set(recordingInitialState())}
           className={cn('text-red-500')}
           title={t('delete_hint')}>
           {t('delete_button')}

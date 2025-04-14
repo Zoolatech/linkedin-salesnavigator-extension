@@ -1,23 +1,27 @@
 import { z } from 'zod';
 
-import type { BaseStorage } from '../base/index.js';
-import { createStorage, StorageEnum } from '../base/index.js';
+import { type BaseStorage, StorageEnum, createStorageChecked } from '../base/index.js';
 
-export const currentConfigSchema = z.object({
-  recording: z.boolean().default(false),
-  digging: z.boolean().default(true),
-  logging: z.boolean().default(false),
-  theme: z.enum(['light', 'dark']).default('light'),
-});
+export const currentConfigSchema = z
+  .object({
+    recording: z.boolean().default(false),
+    digging: z.boolean().default(true),
+    logging: z.boolean().default(false),
+    theme: z.enum(['light', 'dark']).default('light'),
+  })
+  .optional()
+  .default({
+    recording: false,
+    digging: true,
+    logging: false,
+    theme: 'light',
+  });
 
 export type Config = z.infer<typeof currentConfigSchema>;
 
-const initialState: Config = {
-  recording: false,
-  digging: true,
-  logging: false,
-  theme: 'light',
-};
+export function configInitialState() {
+  return currentConfigSchema.parse(undefined satisfies z.input<typeof currentConfigSchema>);
+}
 
 type ConfigStorage = BaseStorage<Config> & {
   toggleRecording: () => Promise<void>;
@@ -26,7 +30,7 @@ type ConfigStorage = BaseStorage<Config> & {
   toggleTheme: () => Promise<void>;
 };
 
-const storage = createStorage<Config>('config', initialState, {
+const storage = createStorageChecked('config', currentConfigSchema, currentConfigSchema.parse(undefined), {
   storageEnum: StorageEnum.Local,
   liveUpdate: true,
 });
